@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/episode_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginBottom="8dp"
+    android:checkable="true"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/episode_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/todo"
+            android:scaleType="centerCrop"
+            app:shapeAppearance="@style/RoundedStyle13"
+            android:src="@mipmap/preview" />
+
+        <TextView
+            android:id="@+id/episode_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/episode_preview"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/episode"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/episode_category"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_below="@id/episode_name"
+            android:layout_alignStart="@id/episode_name"
+            android:layout_marginBottom="5dp"
+            android:layout_toStartOf="@+id/action_play"
+            android:ellipsize="end"
+            android:gravity="clip_horizontal|center_vertical"
+            android:maxLines="1"
+            android:text="category"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/action_play"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/action_book"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/action_link"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            app:srcCompat="@drawable/ic_play_circle_24dp" />
+
+        <ImageView
+            android:id="@+id/action_link"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/action_book"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/action_book"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            app:srcCompat="@drawable/ic_round_link_24" />
+
+        <ImageView
+            android:id="@+id/action_book"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:layout_alignEnd="@id/episode_name"
+            android:layout_below="@id/episode_name"
+            app:srcCompat="@drawable/ic_bookmark_add_24dp" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/info_background"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignBottom="@+id/episode_preview"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:alpha="0.5"
+            android:scaleType="fitXY"
+            app:shapeAppearance="@style/RoundedStyle13B"
+            app:srcCompat="@mipmap/info_bg" />
+
+        <TextView
+            android:id="@+id/time_lasts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/episode_preview"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="6dp"
+            android:textColor="#fff"
+            android:textSize="11sp"
+            tools:ignore="RelativeOverlap" />
+
+        <TextView
+            android:id="@+id/key_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/episode_preview"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="6dp"
+            android:textColor="#fff"
+            android:textSize="11sp" />
+
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

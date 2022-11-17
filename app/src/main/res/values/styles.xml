@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RoundedStyle13">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">13dp</item>
+    </style>
+    <style name="RoundedStyle10">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+    <style name="RoundedStyle13B">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomLeft">13dp</item>
+        <item name="cornerSizeBottomRight">13dp</item>
+    </style>
+</resources>
