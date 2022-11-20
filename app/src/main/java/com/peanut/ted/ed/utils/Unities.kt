@@ -60,6 +60,10 @@ object Unities {
         }
     }
 
+    fun String.toast(context: Context){
+        Toast.makeText(context, this, Toast.LENGTH_SHORT).show()
+    }
+
     fun String.resolveUrl() = if (this.startsWith("http") || this.startsWith("HTTP")) {
         this
     } else "http://$this"
@@ -89,27 +93,36 @@ object Unities {
         }
     }
 
-    private fun getHttpClient():OkHttpClient{
-        return OkHttpClient.Builder()
-            .cookieJar(object :CookieJar{
-                override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return if(SettingManager.getValue("token", "") !="") listOf(
-                        Cookie.Builder().name("token")
-                            .value(SettingManager.getValue("token", ""))
-                            .domain(SettingManager.getValue("token_domain", ""))
-                            .build()
-                    ) else emptyList()
-                }
+    private var okHttpClient:OkHttpClient? = null
 
-                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    for (cookie in cookies) {
-                        if (cookie.name == "token")
-                            SettingManager["token"] = cookie.value
-                        SettingManager["token_domain"] = cookie.domain
-                    }
+    fun getHttpClient():OkHttpClient{
+        if (okHttpClient == null){
+            synchronized("okHttpClient"){
+                if (okHttpClient == null){
+                    okHttpClient = OkHttpClient.Builder()
+                        .cookieJar(object :CookieJar{
+                            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                                return if(SettingManager.getValue("token", "") !="") listOf(
+                                    Cookie.Builder().name("token")
+                                        .value(SettingManager.getValue("token", ""))
+                                        .domain(SettingManager.getValue("token_domain", ""))
+                                        .build()
+                                ) else emptyList()
+                            }
+
+                            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                                for (cookie in cookies) {
+                                    if (cookie.name == "token")
+                                        SettingManager["token"] = cookie.value
+                                    SettingManager["token_domain"] = cookie.domain
+                                }
+                            }
+                        })
+                        .build()
                 }
-            })
-            .build()
+            }
+        }
+        return okHttpClient!!
     }
 
     fun getFileLengthDesc(length: Long): String {

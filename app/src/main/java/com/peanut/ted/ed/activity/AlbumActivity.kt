@@ -46,7 +46,7 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
                 val params = (binding.toolbar.layoutParams as ViewGroup.MarginLayoutParams)
                 params.topMargin = statusBar.top
                 binding.toolbar.layoutParams = params
-                binding.refresh.setProgressViewOffset(true, (statusBar.top + params.height), (statusBar.top + params.height) + 50)
+                binding.refresh.setProgressViewOffset(true, (statusBar.top + params.height) - 50, (statusBar.top + params.height) + 50)
             }
             insets
         }
