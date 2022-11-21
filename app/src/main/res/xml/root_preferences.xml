@@ -2,18 +2,18 @@
     <PreferenceCategory
         app:title="服务器相关"
         app:iconSpaceReserved="false">
-        <EditTextPreference
+        <com.peanut.ted.ed.view.MIUIEditTextPreference
             app:key="ip"
             app:title="地址:端口"
             app:defaultValue="192.168.10.208"
             app:useSimpleSummaryProvider="true"
             app:iconSpaceReserved="false"/>
-        <EditTextPreference
+        <com.peanut.ted.ed.view.MIUIEditTextPreference
             app:key="user"
             app:title="用户名"
             app:useSimpleSummaryProvider="true"
             app:iconSpaceReserved="false"/>
-        <EditTextPreference
+        <com.peanut.ted.ed.view.MIUIEditTextPreference
             app:key="password"
             app:title="密码"
             app:useSimpleSummaryProvider="true"
