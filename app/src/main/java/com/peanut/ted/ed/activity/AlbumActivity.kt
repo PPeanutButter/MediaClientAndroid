@@ -23,7 +23,7 @@ import com.peanut.ted.ed.adapter.AlbumAdapter
 import com.peanut.ted.ed.data.Album
 import com.peanut.ted.ed.databinding.ActivityMainBinding
 import com.peanut.ted.ed.utils.SettingManager
-import com.peanut.ted.ed.utils.Unities.httpThread
+import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
@@ -67,17 +67,18 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
             val user = SettingManager.getValue("user", "")
             val ps = SettingManager.getValue("password", "")
             val server = ViewModel.ServerIp.resolveUrl()
-            "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".httpThread{}
-            getJson {
-                val albums = it.getAlbumData()
-                runOnUiThread {
-                    binding.rv.adapter = AlbumAdapter(
-                        this,this,
-                        albums = albums).also { adapter -> this.adapter = adapter }
-                    binding.rv.layoutManager = StaggeredGridLayoutManager(
-                        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 5,
-                        StaggeredGridLayoutManager.VERTICAL
-                    )
+            "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http{
+                getJson {
+                    val albums = it.getAlbumData()
+                    runOnUiThread {
+                        binding.rv.adapter = AlbumAdapter(
+                            this,this,
+                            albums = albums).also { adapter -> this.adapter = adapter }
+                        binding.rv.layoutManager = StaggeredGridLayoutManager(
+                            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 5,
+                            StaggeredGridLayoutManager.VERTICAL
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -97,7 +98,7 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
 
     private fun getJson(func: (JSONArray) -> Unit) {
         val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFileList?path=/".httpThread{ body ->
+        "$server/getFileList?path=/".http{ body ->
             func.invoke(JSONArray(body ?: "[]"))
         }
     }

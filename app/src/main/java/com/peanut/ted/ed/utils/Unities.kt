@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.Toast
 import okhttp3.*
+import java.io.IOException
 import kotlin.concurrent.thread
 
 object Unities {
@@ -21,19 +22,21 @@ object Unities {
         val clip = ClipData.newPlainText("zhi", this)
         clipboard?.setPrimaryClip(clip)
     }
-    fun Double.second2TimeDesc(): String{
+
+    fun Double.second2TimeDesc(): String {
         val temp = this.toInt()
         val HH = temp / 3600
         val mm = temp % 3600 / 60
         val ss = temp % 3600 % 60
-        return when{
-            HH > 0 -> "$HH:${"0".repeat(if (mm<10) 1 else 0)}$mm:${"0".repeat(if (ss<10) 1 else 0)}$ss"
-            mm > 0 ->                                       "$mm:${"0".repeat(if (ss<10) 1 else 0)}$ss"
-            else ->                                                                             "0:$ss"
+        return when {
+            HH > 0 -> "$HH:${"0".repeat(if (mm < 10) 1 else 0)}$mm:${"0".repeat(if (ss < 10) 1 else 0)}$ss"
+            mm > 0 -> "$mm:${"0".repeat(if (ss < 10) 1 else 0)}$ss"
+            else -> "0:$ss"
         }
     }
 
-    fun String.encodeBased64(): String = Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
+    fun String.encodeBased64(): String =
+        Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
 
     fun String.name() = this.substring(this.lastIndexOf("/") + 1)
 
@@ -60,7 +63,7 @@ object Unities {
         }
     }
 
-    fun String.toast(context: Context){
+    fun String.toast(context: Context) {
         Toast.makeText(context, this, Toast.LENGTH_SHORT).show()
     }
 
@@ -68,41 +71,38 @@ object Unities {
         this
     } else "http://$this"
 
-    fun String.http(context: Context, func: (String?) -> Unit) {
-        thread {
-            val client = getHttpClient()
-            val request: Request = Request.Builder()
-                .url(this)
-                .build()
-            client.newCall(request).execute().use { response ->
-                val s = response.body?.string()
-                Handler(context.mainLooper).post {
-                    func.invoke(s)
-                }
-            }
-        }
-    }
-
-    fun String.httpThread(func: (String?) -> Unit) {
+    fun String.http(context: Context? = null, func: (String?) -> Unit) {
         val client = getHttpClient()
         val request: Request = Request.Builder()
             .url(this)
             .build()
-        client.newCall(request).execute().use { response ->
-            func.invoke(response.body?.string().also { println(it) })
-        }
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val s = response.body?.string()
+                if (context != null) {
+                    Handler(context.mainLooper).post {
+                        func.invoke(s)
+                    }
+                }else{
+                    func.invoke(s)
+                }
+            }
+        })
     }
 
-    private var okHttpClient:OkHttpClient? = null
+    private var okHttpClient: OkHttpClient? = null
 
-    fun getHttpClient():OkHttpClient{
-        if (okHttpClient == null){
-            synchronized("okHttpClient"){
-                if (okHttpClient == null){
+    fun getHttpClient(): OkHttpClient {
+        if (okHttpClient == null) {
+            synchronized("okHttpClient") {
+                if (okHttpClient == null) {
                     okHttpClient = OkHttpClient.Builder()
-                        .cookieJar(object :CookieJar{
+                        .cookieJar(object : CookieJar {
                             override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                                return if(SettingManager.getValue("token", "") !="") listOf(
+                                return if (SettingManager.getValue("token", "") != "") listOf(
                                     Cookie.Builder().name("token")
                                         .value(SettingManager.getValue("token", ""))
                                         .domain(SettingManager.getValue("token_domain", ""))
@@ -134,7 +134,7 @@ object Unities {
         }
     }
 
-    fun View.round(radius:Float){
+    fun View.round(radius: Float) {
         val roundRectangle: ViewOutlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRoundRect(0, 0, view.width, view.height, radius)
@@ -144,13 +144,13 @@ object Unities {
         this.clipToOutline = true
     }
 
-    fun calculateColorLightValue(argb: Int):Double{
+    fun calculateColorLightValue(argb: Int): Double {
         return try {
             val r = argb shr 16 and 0xff
             val g = argb shr 8 and 0xff
             val b = argb and 0xff
-            (0.299 * r + 0.587 * g + 0.114 * b)/255.0
-        }catch (e:Exception){
+            (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
+        } catch (e: Exception) {
             e.printStackTrace()
             0.0
         }

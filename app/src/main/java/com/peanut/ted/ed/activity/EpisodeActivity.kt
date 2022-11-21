@@ -27,7 +27,7 @@ import com.peanut.ted.ed.databinding.ActivityDetailBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities
 import com.peanut.ted.ed.utils.Unities.calculateColorLightValue
-import com.peanut.ted.ed.utils.Unities.httpThread
+import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.utils.Unities.round
 import com.peanut.ted.ed.utils.Unities.toast
@@ -237,14 +237,14 @@ class EpisodeActivity : AppCompatActivity() {
 
     private fun getJson(album: String, func: (JSONArray) -> Unit) {
         val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFileList?path=/$album/".httpThread { body ->
+        "$server/getFileList?path=/$album/".http { body ->
             thread { func.invoke(JSONArray(body ?: "[]")) }
         }
     }
 
     private fun getInfo(func: (JSONObject) -> Unit) {
         val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFile/get_album_info?path=${Uri.encode("/$album/.info")}".httpThread { body ->
+        "$server/getFile/get_album_info?path=${Uri.encode("/$album/.info")}".http { body ->
             thread { func.invoke(JSONObject(body ?: "{}")) }
         }
     }
