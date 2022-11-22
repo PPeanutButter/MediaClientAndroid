@@ -29,7 +29,6 @@ import com.peanut.ted.ed.utils.Unities
 import com.peanut.ted.ed.utils.Unities.calculateColorLightValue
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.resolveUrl
-import com.peanut.ted.ed.utils.Unities.round
 import com.peanut.ted.ed.utils.Unities.toast
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
@@ -55,10 +54,10 @@ class EpisodeActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val statusBar = insets.getInsets(WindowInsets.Type.statusBars())
                 val params = (binding.cover.layoutParams as ViewGroup.MarginLayoutParams)
-                params.topMargin = statusBar.top
+                params.topMargin = statusBar.top + 30
                 binding.cover.layoutParams = params
                 val height = (binding.toolbar.layoutParams as ViewGroup.LayoutParams)
-                height.height = statusBar.top
+                height.height = statusBar.top + 30
                 binding.toolbar.layoutParams = height
             }
             insets
@@ -66,7 +65,6 @@ class EpisodeActivity : AppCompatActivity() {
         album = (intent.getStringExtra("ALBUM") ?: "错误").also {
             binding.toolbarLayout.title = " "
         }
-        binding.cover.round(10.dp)
         binding.cover.setImageDrawable(ViewModel.MainActivity2DetailActivityImage)
         binding.cover.setOnClickListener {
             if (attachAdapter?.itemCount.greatThen(0)){
@@ -141,30 +139,32 @@ class EpisodeActivity : AppCompatActivity() {
                     val score = info.getInt("user_score_chart")
                     val database = ArrayList<Episode>(it.length())
                     val attaches = ArrayList<String>(it.length())
-                    val postRequestCreator = Picasso.get().load(
-                        "$server/getFile/get_post_img?" +
-                                "path=${Uri.encode("/$album/.post")}&" +
-                                "token=${SettingManager.getValue("token", "")}"
-                    ).error(R.mipmap.post)
-                    Palette.from(postRequestCreator.get()).generate { palette ->
-                        // Use generated instance
-                        val vibrantBody = (palette?.dominantSwatch?.rgb)
-                            ?: Color.parseColor("#7367EF")
-                        val light = calculateColorLightValue(vibrantBody)
-                        val color = if (light < 0.4) Color.WHITE else Color.BLACK
-                        runOnUiThread {
-                            binding.toolbarLayout.setContentScrimColor(vibrantBody)
-                            binding.toolbarLayout.setBackgroundColor(vibrantBody)
-                            binding.toolbarLayout.setStatusBarScrimColor(vibrantBody)
-                            binding.textView.setTextColor(color)
-                            binding.textView2.setTextColor(color)
-                            binding.textView3.setTextColor(color)
-                            binding.textView9.setTextColor(color)
-                            WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
-                                light >= 0.4
+                    thread {
+                        val postRequestCreator = Picasso.get().load(
+                            "$server/getFile/get_post_img?" +
+                                    "path=${Uri.encode("/$album/.post")}&" +
+                                    "token=${SettingManager.getValue("token", "")}"
+                        ).error(R.mipmap.post)
+                        Palette.from(postRequestCreator.get()).generate { palette ->
+                            // Use generated instance
+                            val vibrantBody = (palette?.dominantSwatch?.rgb)
+                                ?: Color.parseColor("#7367EF")
+                            val light = calculateColorLightValue(vibrantBody)
+                            val color = if (light < 0.4) Color.WHITE else Color.BLACK
+                            runOnUiThread {
+                                binding.toolbarLayout.setContentScrimColor(vibrantBody)
+                                binding.toolbarLayout.setBackgroundColor(vibrantBody)
+                                binding.toolbarLayout.setStatusBarScrimColor(vibrantBody)
+                                binding.textView.setTextColor(color)
+                                binding.textView2.setTextColor(color)
+                                binding.textView3.setTextColor(color)
+                                binding.textView9.setTextColor(color)
+                                WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
+                                    light >= 0.4
+                            }
+                            //显示海报图片
+                            runOnUiThread { postRequestCreator.into(binding.post).also { binding.post.visibility = View.VISIBLE } }
                         }
-                        //显示海报图片
-                        runOnUiThread { postRequestCreator.into(binding.post).also { binding.post.visibility = View.VISIBLE } }
                     }
                     for (index in 0 until it.length()) {
                         val jsonObject = it.getJSONObject(index)
@@ -253,14 +253,4 @@ class EpisodeActivity : AppCompatActivity() {
         Handler(this.mainLooper).postDelayed(runnable, delay)
     }
 
-    private inline val Int.dp: Float
-        get() = run {
-            return toFloat().dp
-        }
-
-    private inline val Float.dp: Float
-        get() = run {
-            val scale: Float = this@EpisodeActivity.resources.displayMetrics.density
-            return (this * scale + 0.5f)
-        }
 }

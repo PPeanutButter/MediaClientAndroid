@@ -11,7 +11,6 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 
-
 object FileCompat {
     fun copyFile(source: Uri, destination: String, context: Context) {
         source.let { returnUri ->

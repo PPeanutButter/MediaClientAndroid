@@ -9,8 +9,8 @@ android {
         applicationId "com.peanut.ted.ed"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 86
-        versionName "8.6.0"
+        versionCode 87
+        versionName "8.7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -45,4 +45,5 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
     implementation 'com.afollestad.material-dialogs:bottomsheets:3.3.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }

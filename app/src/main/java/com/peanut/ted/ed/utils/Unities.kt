@@ -4,16 +4,12 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Outline
 import android.net.Uri
 import android.os.Handler
 import android.util.Base64
-import android.view.View
-import android.view.ViewOutlineProvider
 import android.widget.Toast
 import okhttp3.*
 import java.io.IOException
-import kotlin.concurrent.thread
 
 object Unities {
     fun String.copy(context: Context) {
@@ -39,15 +35,6 @@ object Unities {
         Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
 
     fun String.name() = this.substring(this.lastIndexOf("/") + 1)
-
-    fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT, delayMillis: Long = 0) =
-        Handler(context.mainLooper).postDelayed({
-            Toast.makeText(
-                context, this,
-                duration
-            ).show()
-        }, delayMillis)
-
 
     fun String.play(context: Context) {
         try {
@@ -132,16 +119,6 @@ object Unities {
             length.shr(10) >= 1.0 -> String.format("%.2f", length / 1024.0) + "KB"
             else -> String.format("%.2f", length / 1.0) + "B"
         }
-    }
-
-    fun View.round(radius: Float) {
-        val roundRectangle: ViewOutlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, radius)
-            }
-        }
-        this.outlineProvider = roundRectangle
-        this.clipToOutline = true
     }
 
     fun calculateColorLightValue(argb: Int): Double {

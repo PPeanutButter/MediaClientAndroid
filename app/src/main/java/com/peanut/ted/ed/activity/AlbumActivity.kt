@@ -99,7 +99,12 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
     private fun getJson(func: (JSONArray) -> Unit) {
         val server = ViewModel.ServerIp.resolveUrl()
         "$server/getFileList?path=/".http{ body ->
-            func.invoke(JSONArray(body ?: "[]"))
+            try {
+                func.invoke(JSONArray(body ?: "[]"))
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+
         }
     }
 
@@ -126,9 +131,14 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
     override fun onRefresh() {
         thread {
             try {
-                getJson {
-                    val albums = it.getAlbumData()
-                    runOnUiThread { adapter?.changeDataset(albums) }
+                val user = SettingManager.getValue("user", "")
+                val ps = SettingManager.getValue("password", "")
+                val server = ViewModel.ServerIp.resolveUrl()
+                "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http{
+                    getJson {
+                        val albums = it.getAlbumData()
+                        runOnUiThread { adapter?.changeDataset(albums) }
+                    }
                 }
             } catch (e: Exception) {
                 runOnUiThread {
