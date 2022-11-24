@@ -57,6 +57,14 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
         })
         binding.toolbar.setOnMenuItemClickListener(this)
         binding.refresh.setOnRefreshListener(this)
+        binding.rv.adapter = AlbumAdapter(
+            this,this,
+            albums = mutableListOf()
+        ).also { adapter -> this.adapter = adapter }
+        binding.rv.layoutManager = StaggeredGridLayoutManager(
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 5,
+            StaggeredGridLayoutManager.VERTICAL
+        )
         refresh()
     }
 
@@ -70,15 +78,7 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
             "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http{
                 getJson {
                     val albums = it.getAlbumData()
-                    runOnUiThread {
-                        binding.rv.adapter = AlbumAdapter(
-                            this,this,
-                            albums = albums).also { adapter -> this.adapter = adapter }
-                        binding.rv.layoutManager = StaggeredGridLayoutManager(
-                            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 5,
-                            StaggeredGridLayoutManager.VERTICAL
-                        )
-                    }
+                    runOnUiThread { adapter?.changeDataset(albums) }
                 }
             }
         } catch (e: Exception) {
@@ -130,24 +130,8 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
 
     override fun onRefresh() {
         thread {
-            try {
-                val user = SettingManager.getValue("user", "")
-                val ps = SettingManager.getValue("password", "")
-                val server = ViewModel.ServerIp.resolveUrl()
-                "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http{
-                    getJson {
-                        val albums = it.getAlbumData()
-                        runOnUiThread { adapter?.changeDataset(albums) }
-                    }
-                }
-            } catch (e: Exception) {
-                runOnUiThread {
-                    Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
-                }
-                e.printStackTrace()
-            } finally {
-                binding.refresh.isRefreshing = false
-            }
+            refreshOnThread()
+            binding.refresh.isRefreshing = false
         }
     }
 }

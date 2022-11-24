@@ -10,7 +10,7 @@ data class Album(val albumTitle: String, val albumPath: String){
     var albumDisplayName: String
     val albumCoverUrl: String get() = "${ViewModel.ServerIp.resolveUrl()}/getCover?" +
             "cover=${Uri.encode(this.albumPath)}&" +
-            "token=${SettingManager.getValue("token", "")}"
+            "token=${ViewModel.token}"
 
     init {
         Pattern.compile("(.*)\\(\\d{4}\\)", Pattern.MULTILINE).matcher(this.albumTitle).apply { this.find() }.also {

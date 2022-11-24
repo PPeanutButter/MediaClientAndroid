@@ -8,4 +8,5 @@ object ViewModel {
     val ServerIp
         get() = SettingManager.getValue("ip", "192.168.211.208:80")
     var watchingPosition: Pair<Int, Long> = -1 to -1
+    var token: String = ""
 }

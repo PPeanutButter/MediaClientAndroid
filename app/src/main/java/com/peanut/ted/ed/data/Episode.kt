@@ -1,11 +1,11 @@
 package com.peanut.ted.ed.data
 
 import android.net.Uri
-import com.peanut.ted.ed.utils.SettingManager
-import com.peanut.ted.ed.utils.Unities.encodeBased64
-import com.peanut.ted.ed.utils.Unities.name
+import android.util.Base64
+import com.peanut.sdk.petlin.Extend.describeAsTimeLasts
+import com.peanut.sdk.petlin.Extend.encodeBase64
+import com.peanut.sdk.petlin.Extend.getFileName
 import com.peanut.ted.ed.utils.Unities.resolveUrl
-import com.peanut.ted.ed.utils.Unities.second2TimeDesc
 import com.peanut.ted.ed.viewmodel.ViewModel
 
 class Episode(episodePath: String,
@@ -18,12 +18,13 @@ class Episode(episodePath: String,
     val timeLasts: String
 
     init {
-        episodeName = episodePath.name()
+        episodeName = episodePath.getFileName()
         val server = ViewModel.ServerIp.resolveUrl()
         previewUrl = "$server/getVideoPreview?path=${Uri.encode(episodePath)}" +
-                "&token=${SettingManager.getValue("token", "")}"
-        timeLasts = timeSeconds.second2TimeDesc()
+                "&token=${ViewModel.token}"
+        timeLasts = timeSeconds.toInt().describeAsTimeLasts(hour = ":", minute = ":", seconds = "")
     }
+
     val desc get() = "$bitrate $date"
 
     val keyInfo get() = String.format("%s%s",
@@ -33,7 +34,7 @@ class Episode(episodePath: String,
     fun getRawLink(album: String):String{
         val server = ViewModel.ServerIp.resolveUrl()
         return "$server/getFile2/${episodeName}?" +
-                "path=${("/$album/$episodeName").encodeBased64()}&" +
-                "token=${SettingManager.getValue("token", "")}"
+                "path=${("/$album/$episodeName").encodeBase64(Base64.NO_WRAP, Base64.URL_SAFE)}&" +
+                "token=${ViewModel.token}"
     }
 }

@@ -3,15 +3,15 @@ package com.peanut.ted.ed.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.peanut.sdk.petlin.Extend.copy
+import com.peanut.sdk.petlin.Extend.encodeBase64
+import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.utils.FileCompat
-import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities
-import com.peanut.ted.ed.utils.Unities.copy
-import com.peanut.ted.ed.utils.Unities.encodeBased64
 import com.peanut.ted.ed.utils.Unities.resolveUrl
-import com.peanut.ted.ed.utils.Unities.toast
 import com.peanut.ted.ed.viewmodel.ViewModel
 import okhttp3.*
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -29,8 +29,7 @@ class ConvertAssActivity : AppCompatActivity() {
                 Log.d("ConvertAssActivity", "onCreate: receive $name with $size")
                 val dest = this.cacheDir.path + "/" + name
                 FileCompat.copyFile(it, dest, this)
-
-                val client = Unities.getHttpClient()
+                val client = Unities.getHttpClient(this)
                 val requestBody = MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("title", "Square Logo")
@@ -42,44 +41,39 @@ class ConvertAssActivity : AppCompatActivity() {
                     .build()
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: java.io.IOException) {
-                        runOnUiThread { e.localizedMessage?.toast(this@ConvertAssActivity) }
+                        e.localizedMessage?.toast(this@ConvertAssActivity)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
                         try {
                             response.body?.string()?.let { r ->
                                 println(r)
-                                runOnUiThread { r.toast(this@ConvertAssActivity) }
+                                r.toast(this@ConvertAssActivity)
                                 JSONObject(r).let { res ->
                                     val file = res.getString("file")
                                     val code = res.getInt("code")
                                     if (code != -1) {
                                         val url =
                                             ViewModel.ServerIp.resolveUrl() + "/downloadSrt?path=" +
-                                                    file.encodeBased64() + "&token=" +
-                                                    SettingManager.getValue("token", "")
+                                                    file.encodeBase64(Base64.NO_WRAP, Base64.URL_SAFE) + "&token=" +
+                                                    ViewModel.token
                                         try {
                                             url.copy(this@ConvertAssActivity)
-                                            this@ConvertAssActivity.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                                                this.setDataAndType(
-                                                    Uri.parse(url), "application/octet-stream"
-                                                )
-                                            })
+                                            this@ConvertAssActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                                         } catch (e: Exception) {
-                                            runOnUiThread { e.localizedMessage?.toast(this@ConvertAssActivity) }
+                                            e.localizedMessage?.toast(this@ConvertAssActivity)
                                         }
                                     }
                                 }
                             }
                         }catch (e:Exception){
-                            runOnUiThread { e.localizedMessage?.toast(this@ConvertAssActivity) }
+                            e.localizedMessage?.toast(this@ConvertAssActivity)
                         }
                     }
                 })
             }catch (e:Exception){
-                runOnUiThread { e.localizedMessage?.toast(this@ConvertAssActivity) }
+                e.localizedMessage?.toast(this@ConvertAssActivity)
             }
         }
     }
-
 }

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.data.Episode
 import com.peanut.ted.ed.utils.Unities.http
@@ -34,7 +35,11 @@ class EpisodeAdapter(
             dataset[position].getRawLink(album).play(this@EpisodeAdapter.context)
         }
         holder.actionLink.setOnClickListener {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(dataset[position].getRawLink(album))))
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(dataset[position].getRawLink(album))))
+            }catch (e:Exception){
+                e.localizedMessage?.toast(context)
+            }
         }
         holder.actionBook.setOnClickListener {
             autoBookmark(position)

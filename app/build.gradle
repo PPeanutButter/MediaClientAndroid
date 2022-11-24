@@ -9,8 +9,8 @@ android {
         applicationId "com.peanut.ted.ed"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 87
-        versionName "8.7.0"
+        versionCode 88
+        versionName "8.7.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,6 +31,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.github.PPeanutButter.AndroidSDK:petlin:7cf00cebe2'
+    implementation 'com.github.PPeanutButter.AndroidSDK:okhttp3:7cf00cebe2'
     implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.2"
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.android.material:material:1.7.0'

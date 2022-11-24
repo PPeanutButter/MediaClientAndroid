@@ -19,17 +19,17 @@ import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.peanut.sdk.miuidialog.MIUIDialog
+import com.peanut.sdk.petlin.Extend.describeAsFileSize
+import com.peanut.sdk.petlin.Extend.isLightColor
+import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.adapter.AttachAdapter
 import com.peanut.ted.ed.adapter.EpisodeAdapter
 import com.peanut.ted.ed.data.Episode
 import com.peanut.ted.ed.databinding.ActivityDetailBinding
 import com.peanut.ted.ed.utils.SettingManager
-import com.peanut.ted.ed.utils.Unities
-import com.peanut.ted.ed.utils.Unities.calculateColorLightValue
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.resolveUrl
-import com.peanut.ted.ed.utils.Unities.toast
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
 import org.json.JSONArray
@@ -143,14 +143,12 @@ class EpisodeActivity : AppCompatActivity() {
                         val postRequestCreator = Picasso.get().load(
                             "$server/getFile/get_post_img?" +
                                     "path=${Uri.encode("/$album/.post")}&" +
-                                    "token=${SettingManager.getValue("token", "")}"
+                                    "token=${ViewModel.token}"
                         ).error(R.mipmap.post)
                         Palette.from(postRequestCreator.get()).generate { palette ->
                             // Use generated instance
-                            val vibrantBody = (palette?.dominantSwatch?.rgb)
-                                ?: Color.parseColor("#7367EF")
-                            val light = calculateColorLightValue(vibrantBody)
-                            val color = if (light < 0.4) Color.WHITE else Color.BLACK
+                            val vibrantBody = (palette?.dominantSwatch?.rgb)?: Color.parseColor("#7367EF")
+                            val color = if (vibrantBody.isLightColor(0.4f)) Color.BLACK else Color.WHITE
                             runOnUiThread {
                                 binding.toolbarLayout.setContentScrimColor(vibrantBody)
                                 binding.toolbarLayout.setBackgroundColor(vibrantBody)
@@ -160,7 +158,7 @@ class EpisodeActivity : AppCompatActivity() {
                                 binding.textView3.setTextColor(color)
                                 binding.textView9.setTextColor(color)
                                 WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
-                                    light >= 0.4
+                                    color == Color.BLACK
                             }
                             //显示海报图片
                             runOnUiThread { postRequestCreator.into(binding.post).also { binding.post.visibility = View.VISIBLE } }
@@ -181,7 +179,7 @@ class EpisodeActivity : AppCompatActivity() {
                                 Episode(
                                     episodePath = episode,
                                     bitrate = if (jsonObject.getString("bitrate") != "") jsonObject.getString("bitrate")
-                                    else Unities.getFileLengthDesc(jsonObject.getLong("length")),
+                                    else jsonObject.getLong("length").describeAsFileSize(""),
                                     date = jsonObject.getString("desc"),
                                     timeSeconds = jsonObject.getDouble("lasts")
                                 )

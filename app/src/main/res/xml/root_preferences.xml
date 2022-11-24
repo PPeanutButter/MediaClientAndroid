@@ -5,7 +5,7 @@
         <com.peanut.ted.ed.view.MIUIEditTextPreference
             app:key="ip"
             app:title="地址:端口"
-            app:defaultValue="192.168.10.208"
+            app:defaultValue="192.168.211.208"
             app:useSimpleSummaryProvider="true"
             app:iconSpaceReserved="false"/>
         <com.peanut.ted.ed.view.MIUIEditTextPreference
