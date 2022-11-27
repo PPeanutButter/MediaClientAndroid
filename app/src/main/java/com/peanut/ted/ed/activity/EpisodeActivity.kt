@@ -125,10 +125,11 @@ class EpisodeActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun refresh() {
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.IO) {
             val server = SettingManager.getIp()
             val fileList = getJson(album)
             val info = getInfo()
+            // post相关
             lifecycleScope.launch(Dispatchers.IO) {
                 val title = info.getString("title")
                 val certification =
@@ -157,7 +158,7 @@ class EpisodeActivity : AppCompatActivity() {
                     binding.include2.textView6.text = "0"
                     binding.include2.circularProgressView.progress = 0
                 }
-                delay(50000 - System.currentTimeMillis() + launchTime)
+                delay(700 - System.currentTimeMillis() + launchTime)
                 withContext(Dispatchers.Main) {
                     valueAnimator.start()
                 }
@@ -220,6 +221,7 @@ class EpisodeActivity : AppCompatActivity() {
                 )
                 val column = if (database.size <= 1) 1 else 2
                 val rv = findViewById<RecyclerView>(R.id.rv)
+                delay(500 - System.currentTimeMillis() + launchTime)
                 withContext(Dispatchers.Main) {
                     (rv.layoutManager as StaggeredGridLayoutManager).spanCount = column
                     rv.adapter = episodeAdapter
