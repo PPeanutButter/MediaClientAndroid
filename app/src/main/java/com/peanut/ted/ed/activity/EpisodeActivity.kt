@@ -15,6 +15,7 @@ import android.view.WindowInsets
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -29,12 +30,14 @@ import com.peanut.ted.ed.data.Episode
 import com.peanut.ted.ed.databinding.ActivityDetailBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
-import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import kotlin.concurrent.thread
 
 class EpisodeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
@@ -120,130 +123,124 @@ class EpisodeActivity : AppCompatActivity() {
         }
     }
 
-    private fun refresh() = thread { refreshOnThread() }
-
     @SuppressLint("SetTextI18n")
-    private fun refreshOnThread() {
-        try {
-            //开始只进行加载动画和网络请求防止卡顿
-            val server = ViewModel.ServerIp.resolveUrl()
-            getJson(album){
-                getInfo { info->
-                    val title = info.getString("title")
-                    val certification = "${info.getString("certification")} ${info.getString("genres")} • ${
+    private fun refresh() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val server = SettingManager.getIp()
+            val fileList = getJson(album)
+            val info = getInfo()
+            lifecycleScope.launch(Dispatchers.IO) {
+                val title = info.getString("title")
+                val certification =
+                    "${info.getString("certification")} ${info.getString("genres")} • ${
                         info.getString(
                             "runtime"
                         )
                     }"
-                    val tagline = "“${info.getString("tagline")}”"
-                    val score = info.getInt("user_score_chart")
-                    val database = ArrayList<Episode>(it.length())
-                    val attaches = ArrayList<String>(it.length())
-                    thread {
-                        val postRequestCreator = Picasso.get().load(
-                            "$server/getFile/get_post_img?" +
-                                    "path=${Uri.encode("/$album/.post")}&" +
-                                    "token=${ViewModel.token}"
-                        ).error(R.mipmap.post)
-                        Palette.from(postRequestCreator.get()).generate { palette ->
-                            // Use generated instance
-                            val vibrantBody = (palette?.dominantSwatch?.rgb)?: Color.parseColor("#7367EF")
-                            val color = if (vibrantBody.isLightColor(0.4f)) Color.BLACK else Color.WHITE
-                            runOnUiThread {
-                                binding.toolbarLayout.setContentScrimColor(vibrantBody)
-                                binding.toolbarLayout.setBackgroundColor(vibrantBody)
-                                binding.toolbarLayout.setStatusBarScrimColor(vibrantBody)
-                                binding.textView.setTextColor(color)
-                                binding.textView2.setTextColor(color)
-                                binding.textView3.setTextColor(color)
-                                binding.textView9.setTextColor(color)
-                                WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
-                                    color == Color.BLACK
-                            }
-                            //显示海报图片
-                            runOnUiThread { postRequestCreator.into(binding.post).also { binding.post.visibility = View.VISIBLE } }
-                        }
-                    }
-                    for (index in 0 until it.length()) {
-                        val jsonObject = it.getJSONObject(index)
-                        val episode = jsonObject.getString("name")
-                        if (jsonObject.getString("type") == "Attach") {
-                            attaches.add(episode)
-                        }
-                        else if (jsonObject.getString("watched") != "watched" || SettingManager.getValue(
-                                "show_watched",
-                                false
-                            )
-                        ) {
-                            database.add(
-                                Episode(
-                                    episodePath = episode,
-                                    bitrate = if (jsonObject.getString("bitrate") != "") jsonObject.getString("bitrate")
-                                    else jsonObject.getLong("length").describeAsFileSize(""),
-                                    date = jsonObject.getString("desc"),
-                                    timeSeconds = jsonObject.getDouble("lasts")
-                                )
-                            )
-                        }
-                    }
-                    episodeAdapter = EpisodeAdapter(
-                        this,
-                        dataset = database,
-                        album = album
-                    )
-                    attachAdapter = AttachAdapter(
-                        this,
-                        titles = attaches
-                    )
-                    val column = if (database.size <= 1) 1 else 2
-                    val rv = findViewById<RecyclerView>(R.id.rv)
+                val tagline = "“${info.getString("tagline")}”"
+                val score = info.getInt("user_score_chart")
+                val valueAnimator = ValueAnimator.ofInt(0, score)
+                valueAnimator.addUpdateListener {
+                    val value = it.animatedValue as Int //手动赋值
                     runOnUiThread {
-                        binding.textView.text = title
-                        binding.textView2.text = certification
-                        binding.textView3.text = tagline
-                        binding.textView9.text = "用户评分"
-                        binding.include2.root.visibility = View.VISIBLE
-                        binding.include2.textView6.text = "0"
-                        binding.include2.circularProgressView.progress = 0
-                        (rv.layoutManager as StaggeredGridLayoutManager).spanCount = column
-                    }
-                    val valueAnimator = ValueAnimator.ofInt(0, score)
-                    valueAnimator.addUpdateListener {
-                        val value = it.animatedValue as Int //手动赋值
-                        runOnUiThread {
-                            binding.include2.textView6.text = value.toString()
-                            binding.include2.circularProgressView.progress = value
-                        }
-                    }
-                    valueAnimator.duration = 1000
-                    //设置数据到界面
-                    runOnUIThreadDelay(500 - System.currentTimeMillis() + launchTime) {
-                        launchTime = System.currentTimeMillis()
-                        rv.adapter = episodeAdapter
-                        //给500毫秒给recyclerview绘制
-                        runOnUIThreadDelay(500 - System.currentTimeMillis() + launchTime) { valueAnimator.start() }
+                        binding.include2.textView6.text = value.toString()
+                        binding.include2.circularProgressView.progress = value
                     }
                 }
+                valueAnimator.duration = 1000
+                withContext(Dispatchers.Main) {
+                    binding.textView.text = title
+                    binding.textView2.text = certification
+                    binding.textView3.text = tagline
+                    binding.textView9.text = "用户评分"
+                    binding.include2.root.visibility = View.VISIBLE
+                    binding.include2.textView6.text = "0"
+                    binding.include2.circularProgressView.progress = 0
+                }
+                delay(50000 - System.currentTimeMillis() + launchTime)
+                withContext(Dispatchers.Main) {
+                    valueAnimator.start()
+                }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Handler(mainLooper).post {
-                Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch(Dispatchers.Main) {
+                val palette = withContext(Dispatchers.IO) {
+                    val postRequestCreator = Picasso.get().load(
+                        "$server/getFile/get_post_img?" +
+                                "path=${Uri.encode("/$album/.post")}&" +
+                                "token=${ViewModel.token}"
+                    ).error(R.mipmap.post)
+                    withContext(Dispatchers.Main) {
+                        postRequestCreator.into(binding.post)
+                            .also { binding.post.visibility = View.VISIBLE }
+                    }
+                    Palette.from(postRequestCreator.get()).generate()
+                }
+                val vibrantBody = (palette.dominantSwatch?.rgb) ?: Color.parseColor("#7367EF")
+                val color = if (vibrantBody.isLightColor(0.4f)) Color.BLACK else Color.WHITE
+                binding.toolbarLayout.setContentScrimColor(vibrantBody)
+                binding.toolbarLayout.setBackgroundColor(vibrantBody)
+                binding.toolbarLayout.setStatusBarScrimColor(vibrantBody)
+                binding.textView.setTextColor(color)
+                binding.textView2.setTextColor(color)
+                binding.textView3.setTextColor(color)
+                binding.textView9.setTextColor(color)
+                WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
+                    color == Color.BLACK
+            }
+            lifecycleScope.launch(Dispatchers.IO) {
+                val database = ArrayList<Episode>(fileList.length())
+                val attaches = ArrayList<String>(fileList.length())
+                for (index in 0 until fileList.length()) {
+                    val jsonObject = fileList.getJSONObject(index)
+                    val episode = jsonObject.getString("name")
+                    if (jsonObject.getString("type") == "Attach") {
+                        attaches.add(episode)
+                    } else if (jsonObject.getString("watched") != "watched" || SettingManager.getShow()) {
+                        database.add(
+                            Episode(
+                                episodePath = episode,
+                                bitrate = if (jsonObject.getString("bitrate") != "") jsonObject.getString(
+                                    "bitrate"
+                                )
+                                else jsonObject.getLong("length").describeAsFileSize(""),
+                                date = jsonObject.getString("desc"),
+                                timeSeconds = jsonObject.getDouble("lasts")
+                            )
+                        )
+                    }
+                }
+                episodeAdapter = EpisodeAdapter(
+                    this@EpisodeActivity,
+                    dataset = database,
+                    album = album
+                )
+                attachAdapter = AttachAdapter(
+                    this@EpisodeActivity,
+                    titles = attaches
+                )
+                val column = if (database.size <= 1) 1 else 2
+                val rv = findViewById<RecyclerView>(R.id.rv)
+                withContext(Dispatchers.Main) {
+                    (rv.layoutManager as StaggeredGridLayoutManager).spanCount = column
+                    rv.adapter = episodeAdapter
+                }
             }
         }
     }
 
-    private fun getJson(album: String, func: (JSONArray) -> Unit) {
-        val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFileList?path=/$album/".http { body ->
-            thread { func.invoke(JSONArray(body ?: "[]")) }
+    private suspend fun getJson(album: String):JSONArray {
+        return withContext(Dispatchers.IO){
+            val server = SettingManager.getIp()
+            val b = "$server/getFileList?path=/$album/".http()?:"[]"
+            JSONArray(b)
         }
     }
 
-    private fun getInfo(func: (JSONObject) -> Unit) {
-        val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFile/get_album_info?path=${Uri.encode("/$album/.info")}".http { body ->
-            thread { func.invoke(JSONObject(body ?: "{}")) }
+    private suspend fun getInfo():JSONObject {
+        return withContext(Dispatchers.IO){
+            val server = SettingManager.getIp()
+            val b = "$server/getFile/get_album_info?path=${Uri.encode("/$album/.info")}".http()
+            JSONObject(b?:"{}")
         }
     }
 

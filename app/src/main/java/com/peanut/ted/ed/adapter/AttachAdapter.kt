@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.peanut.sdk.petlin.Extend.encodeBase64
 import com.peanut.sdk.petlin.Extend.getFileName
 import com.peanut.ted.ed.R
-import com.peanut.ted.ed.utils.Unities.resolveUrl
+import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.viewholder.AttachViewHolder
 import com.peanut.ted.ed.viewmodel.ViewModel
 
@@ -24,9 +24,8 @@ class AttachAdapter(
 
     override fun onBindViewHolder(holder: AttachViewHolder, position: Int) {
         holder.attachName.text = titles[position].getFileName()
-        val server = ViewModel.ServerIp.resolveUrl()
         holder.attachDownload.setOnClickListener {
-            val link = "$server/getFile2/${titles[position].getFileName()}" +
+            val link = "${SettingManager.getIp()}/getFile2/${titles[position].getFileName()}" +
                     "?path=${("/"+titles[position]).encodeBase64(Base64.NO_WRAP, Base64.URL_SAFE)}" +
                     "&token=${ViewModel.token}"
             val intent = Intent(Intent.ACTION_VIEW)

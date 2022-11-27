@@ -9,14 +9,15 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.WindowInsets
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.BuildConfig
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.adapter.AlbumAdapter
@@ -24,11 +25,12 @@ import com.peanut.ted.ed.data.Album
 import com.peanut.ted.ed.databinding.ActivityMainBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
-import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import kotlin.concurrent.thread
 
 class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private lateinit var binding: ActivityMainBinding
@@ -68,24 +70,22 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
         refresh()
     }
 
-    private fun refresh() = thread { refreshOnThread() }
-
-    private fun refreshOnThread() {
-        try {
-            val user = SettingManager.getValue("user", "")
-            val ps = SettingManager.getValue("password", "")
-            val server = ViewModel.ServerIp.resolveUrl()
-            "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http{
-                getJson {
-                    val albums = it.getAlbumData()
-                    runOnUiThread { adapter?.changeDataset(albums) }
+    private fun refresh(){
+        lifecycleScope.launch(Dispatchers.Main) {
+            val albums: MutableList<Album> = withContext(Dispatchers.IO) {
+                try {
+                    val user = SettingManager.getUserName()
+                    val ps = SettingManager.getPassword()
+                    val server = SettingManager.getIp()
+                    // login
+                    "$server/userLogin?name=${Uri.encode(user)}&psw=${Uri.encode(ps)}".http()
+                    getJson().getAlbumData()
+                }catch (e:Exception){
+                    e.localizedMessage?.toast(this@AlbumActivity)
+                    mutableListOf()
                 }
             }
-        } catch (e: Exception) {
-            runOnUiThread {
-                Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
-            }
-            e.printStackTrace()
+            adapter?.changeDataset(albums)
         }
     }
 
@@ -95,24 +95,17 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
         ViewModel.MainActivity2DetailActivityImage = null
     }
 
-
-    private fun getJson(func: (JSONArray) -> Unit) {
-        val server = ViewModel.ServerIp.resolveUrl()
-        "$server/getFileList?path=/".http{ body ->
-            try {
-                func.invoke(JSONArray(body ?: "[]"))
-            }catch (e:Exception){
-                e.printStackTrace()
-            }
-
-        }
+    private suspend fun getJson(): JSONArray {
+        val server = SettingManager.getIp()
+        val body = "$server/getFileList?path=/".http()
+        return JSONArray(body ?: "[]")
     }
 
-    private fun JSONArray.getAlbumData(): MutableList<Album>{
+    private suspend fun JSONArray.getAlbumData(): MutableList<Album>{
         val albums = mutableListOf<Album>()
         for (i in 0 until this.length()) {
             val data = this.getJSONObject(i)
-            if (data.getString("type") == "Directory" && (data.getString("watched") != "watched" || SettingManager.getValue("show_watched", false)))
+            if (data.getString("type") == "Directory" && (data.getString("watched") != "watched" || SettingManager.getShow()))
                 albums.add(Album(albumTitle = data.getString("title"), albumPath = data.getString("name")))
         }
         return albums
@@ -129,9 +122,7 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
     }
 
     override fun onRefresh() {
-        thread {
-            refreshOnThread()
-            binding.refresh.isRefreshing = false
-        }
+        refresh()
+        binding.refresh.isRefreshing = false
     }
 }

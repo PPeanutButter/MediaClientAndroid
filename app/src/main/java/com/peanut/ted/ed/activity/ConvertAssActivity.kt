@@ -10,8 +10,8 @@ import com.peanut.sdk.petlin.Extend.copy
 import com.peanut.sdk.petlin.Extend.encodeBase64
 import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.utils.FileCompat
+import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities
-import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.viewmodel.ViewModel
 import okhttp3.*
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -36,7 +36,7 @@ class ConvertAssActivity : AppCompatActivity() {
                     .addFormDataPart("file", name, File(dest).asRequestBody())
                     .build()
                 val request = Request.Builder()
-                    .url(ViewModel.ServerIp.resolveUrl() + "/uploadAss")
+                    .url(SettingManager.getIp() + "/uploadAss")
                     .post(requestBody)
                     .build()
                 client.newCall(request).enqueue(object : Callback {
@@ -54,7 +54,7 @@ class ConvertAssActivity : AppCompatActivity() {
                                     val code = res.getInt("code")
                                     if (code != -1) {
                                         val url =
-                                            ViewModel.ServerIp.resolveUrl() + "/downloadSrt?path=" +
+                                            SettingManager.getIp() + "/downloadSrt?path=" +
                                                     file.encodeBase64(Base64.NO_WRAP, Base64.URL_SAFE) + "&token=" +
                                                     ViewModel.token
                                         try {

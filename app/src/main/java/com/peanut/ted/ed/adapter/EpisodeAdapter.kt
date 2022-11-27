@@ -9,12 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.data.Episode
+import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.play
-import com.peanut.ted.ed.utils.Unities.resolveUrl
 import com.peanut.ted.ed.viewholder.EpisodeViewHolder
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.*
 
 class EpisodeAdapter(
         private val context: Context,
@@ -52,8 +53,12 @@ class EpisodeAdapter(
             .into(holder.episodePreview)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun autoBookmark(position: Int){
-        "${ViewModel.ServerIp.resolveUrl()}/toggleBookmark?path=${Uri.encode("/"+album+"/"+dataset[position].episodeName)}".http(this@EpisodeAdapter.context) {
+        GlobalScope.launch(Dispatchers.Main){
+            withContext(Dispatchers.IO){
+                "${SettingManager.getIp()}/toggleBookmark?path=${Uri.encode("/"+album+"/"+dataset[position].episodeName)}".http()
+            }
             dataset.removeAt(position)
             notifyItemRemoved(position)
             if (position != itemCount) {

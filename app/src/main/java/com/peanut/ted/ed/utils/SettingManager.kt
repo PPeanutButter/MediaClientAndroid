@@ -1,28 +1,54 @@
 package com.peanut.ted.ed.utils
 
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.peanut.ted.ed.utils.Unities.resolveUrl
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 object SettingManager {
-    private var sharedPreferences: SharedPreferences? = null
+    var datastore: DataStore<Preferences>? = null
+    private val Context.datastore: DataStore<Preferences> by preferencesDataStore("settings")
 
     fun init(context: Context) {
-        if (null == sharedPreferences)
-            sharedPreferences = context.getSharedPreferences(
-                context.packageName + "_preferences",
-                Context.MODE_PRIVATE
-            )
+        if (null == datastore)
+            datastore = context.datastore
     }
 
-    fun <T> getValue(key: String, defaultValue: T): T {
-        @Suppress("UNCHECKED_CAST")
-        return when (defaultValue) {
-            is Boolean -> sharedPreferences!!.getBoolean(key, defaultValue) as T
-            is String -> sharedPreferences!!.getString(key, defaultValue) as T
-            is Int -> sharedPreferences!!.getInt(key, defaultValue) as T
-            is Float -> sharedPreferences!!.getFloat(key, defaultValue) as T
-            is Long -> sharedPreferences!!.getLong(key, defaultValue) as T
-            else -> sharedPreferences!!.getStringSet(key, defaultValue as Set<String>) as T
+    fun getUserName(): String {
+        return runBlocking {
+            datastore?.data?.map { p ->
+                p[stringPreferencesKey("user")]
+            }?.first() ?: ""
+        }
+    }
+
+    fun getIp(): String {
+        return runBlocking {
+            datastore?.data?.map { p ->
+                p[stringPreferencesKey("ip")]?.resolveUrl()
+            }?.first() ?: ""
+        }
+    }
+
+    fun getPassword(): String {
+        return runBlocking {
+            datastore?.data?.map { p ->
+                p[stringPreferencesKey("password")]
+            }?.first() ?: ""
+        }
+    }
+
+    suspend fun getShow(): Boolean {
+        return runBlocking {
+            datastore?.data?.map { p ->
+                p[booleanPreferencesKey("show_watched")]
+            }?.first() ?: false
         }
     }
 }

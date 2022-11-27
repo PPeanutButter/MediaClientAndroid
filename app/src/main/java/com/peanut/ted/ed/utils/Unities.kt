@@ -7,7 +7,10 @@ import android.os.Handler
 import android.widget.Toast
 import com.peanut.sdk.okhttp3.CacheStoreCookieJar
 import com.peanut.sdk.okhttp3.OnReceiveCookieCallback
+import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.viewmodel.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import java.io.IOException
 
@@ -32,30 +35,15 @@ object Unities {
         this
     } else "http://$this"
 
-    fun String.http(context: Context? = null, func: (String?) -> Unit) {
-        val client = okHttpClient
-        val request: Request = Request.Builder()
-            .url(this)
-            .build()
-        client?.newCall(request)?.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                println("onFailure")
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                println("onResponse")
-                println(call.request().url.encodedPath+":"+call.request().header("Cookie"))
-                val s = response.body?.string()
-                if (context != null) {
-                    Handler(context.mainLooper).post {
-                        func.invoke(s)
-                    }
-                }else{
-                    func.invoke(s)
-                }
-            }
-        })
+    suspend fun String.http(): String? {
+        val body = withContext(Dispatchers.IO){
+            val client = okHttpClient
+            val request: Request = Request.Builder()
+                .url(this@http)
+                .build()
+            client?.newCall(request)?.execute()
+        }
+        return body?.body?.string()
     }
 
     private var okHttpClient: OkHttpClient? = null
