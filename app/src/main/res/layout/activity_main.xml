@@ -35,6 +35,17 @@
             android:paddingEnd="4dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/playHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_round_play_arrow_24"
+            android:contentDescription="@string/resume_play_video"
+            app:layout_behavior=".view.FabScrollBehavior"/>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -2,4 +2,5 @@
     <string name="app_name">花生酱的NAS</string>
     <string name="episode">episode</string>
     <string name="todo">todo</string>
+    <string name="resume_play_video">resume play video</string>
 </resources>

@@ -17,14 +17,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.peanut.sdk.miuidialog.AddInFunction.gone
+import com.peanut.sdk.miuidialog.AddInFunction.visible
 import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.BuildConfig
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.adapter.AlbumAdapter
 import com.peanut.ted.ed.data.Album
+import com.peanut.ted.ed.data.PlayHistory
 import com.peanut.ted.ed.databinding.ActivityMainBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
+import com.peanut.ted.ed.utils.Unities.play
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +97,20 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
         super.onStart()
         //从Detail回来，清除图片
         ViewModel.MainActivity2DetailActivityImage = null
+        //是否有上次观看记录
+        lifecycleScope.launch(Dispatchers.IO) {
+            val playHistory = SettingManager.readPlayHistory()
+            withContext(Dispatchers.Main){
+                if (playHistory != PlayHistory.Empty){
+                    binding.playHistory.visible()
+                    binding.playHistory.setOnClickListener {
+                        playHistory.url.play(this@AlbumActivity)
+                    }
+                }else{
+                    binding.playHistory.gone()
+                }
+            }
+        }
     }
 
     private suspend fun getJson(): JSONArray {

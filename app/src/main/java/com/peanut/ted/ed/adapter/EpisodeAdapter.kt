@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.data.Episode
+import com.peanut.ted.ed.data.PlayHistory
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.play
@@ -34,6 +35,11 @@ class EpisodeAdapter(
         holder.actionPlay.setOnClickListener {
             ViewModel.watchingPosition = position to System.currentTimeMillis()
             dataset[position].getRawLink(album).play(this@EpisodeAdapter.context)
+            MainScope().launch {
+                withContext(Dispatchers.IO){
+                    SettingManager.savePlayHistory(PlayHistory(dataset[position].episodeName, url = dataset[position].getRawLink(album)))
+                }
+            }
         }
         holder.actionLink.setOnClickListener {
             try {
@@ -58,6 +64,10 @@ class EpisodeAdapter(
         GlobalScope.launch(Dispatchers.Main){
             withContext(Dispatchers.IO){
                 "${SettingManager.getIp()}/toggleBookmark?path=${Uri.encode("/"+album+"/"+dataset[position].episodeName)}".http()
+                val playHistory = SettingManager.readPlayHistory()
+                //如果标记的是上次正在看的，那就取消，否则不管
+                if (playHistory == PlayHistory(dataset[position].episodeName, url = dataset[position].getRawLink(album)))
+                    SettingManager.savePlayHistory(PlayHistory.Empty)
             }
             dataset.removeAt(position)
             notifyItemRemoved(position)
