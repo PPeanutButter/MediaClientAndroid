@@ -33,7 +33,8 @@ class AlbumAdapter(
             ViewModel.MainActivity2DetailActivityImage = holder.albumPreview.drawable
             context.startActivity(
                 Intent(context, EpisodeActivity::class.java)
-                    .putExtra("ALBUM", albums[position].albumPath),
+                    .putExtra("ALBUM", albums[position].albumPath)
+                    .putExtra("TITLE", albums[position].albumDisplayName),
                 ActivityOptions.makeSceneTransitionAnimation(
                     activity, holder.albumPreview, "ted-cover"
                 ).toBundle()

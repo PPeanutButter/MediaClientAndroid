@@ -2,12 +2,10 @@ package com.peanut.ted.ed.activity
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +40,7 @@ import org.json.JSONObject
 class EpisodeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var album: String
+    private lateinit var title: String
     private var launchTime: Long = 0L
     private var initialized = false
     private var attachAdapter: AttachAdapter? = null
@@ -68,6 +67,7 @@ class EpisodeActivity : AppCompatActivity() {
         album = (intent.getStringExtra("ALBUM") ?: "错误").also {
             binding.toolbarLayout.title = " "
         }
+        title = intent.getStringExtra("TITLE") ?: "错误"
         binding.cover.setImageDrawable(ViewModel.MainActivity2DetailActivityImage)
         binding.cover.setOnClickListener {
             if (attachAdapter?.itemCount.greatThen(0)){
@@ -213,7 +213,8 @@ class EpisodeActivity : AppCompatActivity() {
                 episodeAdapter = EpisodeAdapter(
                     this@EpisodeActivity,
                     dataset = database,
-                    album = album
+                    album = album,
+                    title = title
                 )
                 attachAdapter = AttachAdapter(
                     this@EpisodeActivity,
@@ -244,10 +245,6 @@ class EpisodeActivity : AppCompatActivity() {
             val b = "$server/getFile/get_album_info?path=${Uri.encode("/$album/.info")}".http()
             JSONObject(b?:"{}")
         }
-    }
-
-    private fun Activity.runOnUIThreadDelay(delay: Long, runnable: Runnable){
-        Handler(this.mainLooper).postDelayed(runnable, delay)
     }
 
 }

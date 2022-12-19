@@ -21,7 +21,8 @@ import kotlinx.coroutines.*
 class EpisodeAdapter(
         private val context: Context,
         private val dataset: MutableList<Episode>,
-        private val album: String
+        private val album: String,
+        private val title: String
 ) : RecyclerView.Adapter<EpisodeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -34,7 +35,7 @@ class EpisodeAdapter(
         holder.keyInfo.text = dataset[position].keyInfo
         holder.actionPlay.setOnClickListener {
             ViewModel.watchingPosition = position to System.currentTimeMillis()
-            dataset[position].getRawLink(album).play(this@EpisodeAdapter.context)
+            dataset[position].getRawLink(album, title).play(this@EpisodeAdapter.context)
             MainScope().launch {
                 withContext(Dispatchers.IO){
                     SettingManager.savePlayHistory(PlayHistory(dataset[position].episodeName, url = dataset[position].getRawLink(album)))
