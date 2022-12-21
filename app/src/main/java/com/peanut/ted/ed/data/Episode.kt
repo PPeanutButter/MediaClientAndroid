@@ -6,6 +6,7 @@ import com.peanut.sdk.petlin.Extend.describeAsTimeLasts
 import com.peanut.sdk.petlin.Extend.encodeBase64
 import com.peanut.sdk.petlin.Extend.getFileName
 import com.peanut.ted.ed.utils.SettingManager
+import com.peanut.ted.ed.utils.Unities.regex
 import com.peanut.ted.ed.viewmodel.ViewModel
 import java.util.regex.Pattern
 
@@ -48,12 +49,9 @@ class Episode(episodePath: String,
             episodeName.indexOf("bluray", 0, true) != -1 -> "蓝光"
             else -> ""
         }
-        val episode = Pattern.compile("s(\\d+)e(\\d+)", Pattern.CASE_INSENSITIVE).matcher(episodeName)
-            .apply { this.find() }.let {
-                if (it.groupCount() > 2){
-                    String.format("第%s季第%s集 ",it.group(1),it.group(2))
-                }else ""
-            }
+        val episode = episodeName.regex("s(\\d+)e(\\d+)", Pattern.CASE_INSENSITIVE){
+            String.format("第%s季第%s集 ",it[0],it[1])
+        }
         return "$title $episode$resolution$quality"
     }
 }
