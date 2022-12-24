@@ -3,16 +3,13 @@ package com.peanut.ted.ed.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
 import android.widget.Toast
 import com.peanut.sdk.okhttp3.CacheStoreCookieJar
 import com.peanut.sdk.okhttp3.OnReceiveCookieCallback
-import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.viewmodel.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
-import java.io.IOException
 import java.util.regex.Pattern
 
 object Unities {
@@ -40,6 +37,28 @@ object Unities {
             context.startActivity(intent)
         } catch (e: Exception) {
             Toast.makeText(context, "打开播放器失败: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun String.download(context: Context) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(Uri.parse(this), "application/x-download")
+            // adb shell "dumpsys window | grep mCurrentFocus"
+            intent.setClassName(
+                "com.android.providers.downloads.ui",
+                "com.android.providers.downloads.ui.activity.BrowserDownloadActivity"
+            )
+            context.startActivity(intent)
+        }catch (e:Exception){
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(Uri.parse(this), "application/x-download")
+                // in case not working on some system
+                context.startActivity(intent)
+            }catch (ae:Exception){
+                Toast.makeText(context, "提交下载任务失败: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

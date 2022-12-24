@@ -1,16 +1,15 @@
 package com.peanut.ted.ed.adapter
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.peanut.sdk.petlin.Extend.toast
 import com.peanut.ted.ed.R
 import com.peanut.ted.ed.data.Episode
 import com.peanut.ted.ed.data.PlayHistory
 import com.peanut.ted.ed.utils.SettingManager
+import com.peanut.ted.ed.utils.Unities.download
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.play
 import com.peanut.ted.ed.viewholder.EpisodeViewHolder
@@ -50,16 +49,7 @@ class EpisodeAdapter(
             }
         }
         holder.actionLink.setOnClickListener {
-            try {
-                context.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(dataset[position].getRawLink(album))
-                    )
-                )
-            } catch (e: Exception) {
-                e.localizedMessage?.toast(context)
-            }
+            dataset[position].getRawLink(album).download(context)
         }
         holder.actionBook.setOnClickListener {
             autoBookmark(position)
