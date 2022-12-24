@@ -19,14 +19,16 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 
 class EpisodeAdapter(
-        private val context: Context,
-        private val dataset: MutableList<Episode>,
-        private val album: String,
-        private val title: String
+    private val context: Context,
+    private val dataset: MutableList<Episode>,
+    private val album: String,
+    private val title: String
 ) : RecyclerView.Adapter<EpisodeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            EpisodeViewHolder(LayoutInflater.from(context).inflate(R.layout.episode_layout, parent, false))
+        EpisodeViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.episode_layout, parent, false)
+        )
 
     override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {
         holder.episodeName.text = dataset[position].episodeName
@@ -37,15 +39,25 @@ class EpisodeAdapter(
             ViewModel.watchingPosition = position to System.currentTimeMillis()
             dataset[position].getRawLink(album, title).play(this@EpisodeAdapter.context)
             MainScope().launch {
-                withContext(Dispatchers.IO){
-                    SettingManager.savePlayHistory(PlayHistory(dataset[position].episodeName, url = dataset[position].getRawLink(album)))
+                withContext(Dispatchers.IO) {
+                    SettingManager.savePlayHistory(
+                        PlayHistory(
+                            dataset[position].getTitleDesc(title),
+                            url = dataset[position].getRawLink(album)
+                        )
+                    )
                 }
             }
         }
         holder.actionLink.setOnClickListener {
             try {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(dataset[position].getRawLink(album))))
-            }catch (e:Exception){
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(dataset[position].getRawLink(album))
+                    )
+                )
+            } catch (e: Exception) {
                 e.localizedMessage?.toast(context)
             }
         }
@@ -61,13 +73,17 @@ class EpisodeAdapter(
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun autoBookmark(position: Int){
-        GlobalScope.launch(Dispatchers.Main){
-            withContext(Dispatchers.IO){
-                "${SettingManager.getIp()}/toggleBookmark?path=${Uri.encode("/"+album+"/"+dataset[position].episodeName)}".http()
+    fun autoBookmark(position: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            withContext(Dispatchers.IO) {
+                "${SettingManager.getIp()}/toggleBookmark?path=${Uri.encode("/" + album + "/" + dataset[position].episodeName)}".http()
                 val playHistory = SettingManager.readPlayHistory()
                 //如果标记的是上次正在看的，那就取消，否则不管
-                if (playHistory == PlayHistory(dataset[position].episodeName, url = dataset[position].getRawLink(album)))
+                if (playHistory == PlayHistory(
+                        dataset[position].getTitleDesc(title),
+                        url = dataset[position].getRawLink(album)
+                    )
+                )
                     SettingManager.savePlayHistory(PlayHistory.Empty)
             }
             dataset.removeAt(position)

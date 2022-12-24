@@ -38,7 +38,7 @@ class Episode(episodePath: String,
                 "token=${ViewModel.token}"
     }
 
-    private fun getTitleDesc(title: String):String{
+    fun getTitleDesc(title: String):String{
         val resolution = when{
             episodeName.indexOf("2160p", 0, true) != -1 -> "4K "
             episodeName.indexOf("1080p", 0, true) != -1 -> "1080P "
