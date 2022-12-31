@@ -40,10 +40,7 @@ class EpisodeAdapter(
             MainScope().launch {
                 withContext(Dispatchers.IO) {
                     SettingManager.savePlayHistory(
-                        PlayHistory(
-                            dataset[position].getTitleDesc(title),
-                            url = dataset[position].getRawLink(album)
-                        )
+                        PlayHistory.fromEpisode(dataset[position], album, title)
                     )
                 }
             }
@@ -69,11 +66,7 @@ class EpisodeAdapter(
                 "${SettingManager.getIp()}/toggleBookmark?path=${Uri.encode("/" + album + "/" + dataset[position].episodeName)}".http()
                 val playHistory = SettingManager.readPlayHistory()
                 //如果标记的是上次正在看的，那就取消，否则不管
-                if (playHistory == PlayHistory(
-                        dataset[position].getTitleDesc(title),
-                        url = dataset[position].getRawLink(album)
-                    )
-                )
+                if (playHistory == PlayHistory.fromEpisode(dataset[position], album, title))
                     SettingManager.savePlayHistory(PlayHistory.Empty)
             }
             dataset.removeAt(position)

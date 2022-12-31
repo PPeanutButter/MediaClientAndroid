@@ -1,8 +1,12 @@
 package com.peanut.ted.ed.data
 
 data class PlayHistory(val id: String, val url: String){
+
     companion object{
         val Empty = PlayHistory("", "")
+        fun fromEpisode(e: Episode, album: String, title: String) = PlayHistory(
+            e.episodeName, e.getRawLink(album, title)
+        )
     }
 
     override fun hashCode(): Int {

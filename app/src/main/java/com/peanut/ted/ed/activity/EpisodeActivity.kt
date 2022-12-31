@@ -210,6 +210,7 @@ class EpisodeActivity : AppCompatActivity() {
                         )
                     }
                 }
+                database.sort()
                 episodeAdapter = EpisodeAdapter(
                     this@EpisodeActivity,
                     dataset = database,

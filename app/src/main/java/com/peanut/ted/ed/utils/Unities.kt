@@ -14,16 +14,16 @@ import java.util.regex.Pattern
 
 object Unities {
 
-    fun String.regex(regex: String, mode: Int, onRegex:(MutableList<String>)->String):String{
+    fun String.regex(regex: String, mode: Int, notFound: String = "", onRegex:(MutableList<String>)->String):String{
         val p = Pattern.compile(regex, mode).matcher(this)
         if (p.find()){
             val result = mutableListOf<String>()
-            for (i in 1..p.groupCount()){
+            for (i in 0..p.groupCount()){
                 p.group(i)?.let { result.add(it) }
             }
             return onRegex(result)
         }
-        return ""
+        return notFound
     }
 
     fun String.play(context: Context) {

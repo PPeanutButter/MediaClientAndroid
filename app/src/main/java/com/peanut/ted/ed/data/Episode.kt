@@ -13,7 +13,7 @@ import java.util.regex.Pattern
 class Episode(episodePath: String,
               val timeSeconds: Double,
               private val bitrate: String,
-              private val date: String) {
+              private val date: String):Comparable<Episode> {
 
     val episodeName: String
     val previewUrl: String
@@ -30,7 +30,7 @@ class Episode(episodePath: String,
 
     val keyInfo get() = String.format("%s%s",
             if (episodeName.indexOf("2160p", 0, true) != -1) "4K " else "",
-            if (episodeName.indexOf("hdr", 0, true) != -1) "HDR" else "")
+            if (episodeName.indexOf("hdr", 0, true) != -1 || episodeName.indexOf("hlg", 0, true) != -1) "HDR" else "")
 
     fun getRawLink(album: String, title: String? = null):String{
         return "${SettingManager.getIp()}/getFile2/${if (title != null) getTitleDesc(title) else episodeName }?" +
@@ -38,20 +38,31 @@ class Episode(episodePath: String,
                 "token=${ViewModel.token}"
     }
 
-    fun getTitleDesc(title: String):String{
+    private fun getTitleDesc(title: String):String{
         val resolution = when{
             episodeName.indexOf("2160p", 0, true) != -1 -> "4K "
             episodeName.indexOf("1080p", 0, true) != -1 -> "1080P "
             else -> ""
         }
         val quality = when{
-            episodeName.indexOf("hdr", 0, true) != -1 -> "HDR"
+            episodeName.indexOf("hdr", 0, true) != -1 || episodeName.indexOf("hlg", 0, true) != -1 -> "HDR"
             episodeName.indexOf("bluray", 0, true) != -1 -> "蓝光"
             else -> ""
         }
         val episode = episodeName.regex("s(\\d+)e(\\d+)", Pattern.CASE_INSENSITIVE){
-            String.format("第%s季第%s集 ",it[0],it[1])
+            String.format("第%s季第%s集 ",it[1],it[2])
         }
         return "$title $episode$resolution$quality"
     }
+
+    private fun getSeasonEpisode():String{
+        return episodeName.regex("s(\\d+)e(\\d+)", Pattern.CASE_INSENSITIVE, episodeName){
+            it[0].uppercase()
+        }
+    }
+
+    override fun compareTo(other: Episode): Int {
+        return this.getSeasonEpisode().compareTo(other.getSeasonEpisode())
+    }
+
 }
