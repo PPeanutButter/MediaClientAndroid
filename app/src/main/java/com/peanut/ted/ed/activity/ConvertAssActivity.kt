@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Base64
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.peanut.sdk.okhttp3.CacheStoreCookieJar
+import com.peanut.sdk.okhttp3.OnReceiveCookieCallback
 import com.peanut.sdk.petlin.Extend.copy
 import com.peanut.sdk.petlin.Extend.encodeBase64
 import com.peanut.sdk.petlin.Extend.toast
@@ -17,6 +19,7 @@ import okhttp3.*
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 
 class ConvertAssActivity : AppCompatActivity() {
@@ -29,14 +32,20 @@ class ConvertAssActivity : AppCompatActivity() {
                 Log.d("ConvertAssActivity", "onCreate: receive $name with $size")
                 val dest = this.cacheDir.path + "/" + name
                 FileCompat.copyFile(it, dest, this)
-                val client = Unities.getHttpClient(this)
+                val client = OkHttpClient.Builder()
+                    .cookieJar(CacheStoreCookieJar(this))
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .callTimeout(60, TimeUnit.SECONDS)
+                    .build()
                 val requestBody = MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("title", "Square Logo")
                     .addFormDataPart("file", name, File(dest).asRequestBody())
                     .build()
                 val request = Request.Builder()
-                    .url(SettingManager.getIp() + "/uploadAss")
+                    .url(SettingManager.getIp() + "/a2s/uploadAss")
                     .post(requestBody)
                     .build()
                 client.newCall(request).enqueue(object : Callback {
@@ -54,7 +63,7 @@ class ConvertAssActivity : AppCompatActivity() {
                                     val code = res.getInt("code")
                                     if (code != -1) {
                                         val url =
-                                            SettingManager.getIp() + "/downloadSrt?path=" +
+                                            SettingManager.getIp() + "/a2s/downloadSrt?path=" +
                                                     file.encodeBase64(Base64.NO_WRAP, Base64.URL_SAFE) + "&token=" +
                                                     ViewModel.token
                                         try {

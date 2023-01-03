@@ -25,7 +25,7 @@ import com.peanut.ted.ed.R
 import com.peanut.ted.ed.adapter.AttachAdapter
 import com.peanut.ted.ed.adapter.EpisodeAdapter
 import com.peanut.ted.ed.data.Episode
-import com.peanut.ted.ed.databinding.ActivityDetailBinding
+import com.peanut.ted.ed.databinding.ActivityEpisodeBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.viewmodel.ViewModel
@@ -38,7 +38,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class EpisodeActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityDetailBinding
+    private lateinit var binding: ActivityEpisodeBinding
     private lateinit var album: String
     private lateinit var title: String
     private var launchTime: Long = 0L
@@ -50,7 +50,7 @@ class EpisodeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.statusBarColor = 0
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        binding = ActivityDetailBinding.inflate(layoutInflater)
+        binding = ActivityEpisodeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.root.setOnApplyWindowInsetsListener { _, insets ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -73,7 +73,7 @@ class EpisodeActivity : AppCompatActivity() {
             if (attachAdapter?.itemCount.greatThen(0)){
                 MIUIDialog(this).show{
                     title(text = "下载附件")
-                    customView(viewRes = R.layout.attachment_layout) {
+                    customView(viewRes = R.layout.layout_attachment) {
                         val attachment = it.findViewById<RecyclerView>(R.id.attachment)
                         if (attachment.adapter == null)
                             attachment.adapter = attachAdapter
@@ -222,7 +222,7 @@ class EpisodeActivity : AppCompatActivity() {
                     titles = attaches
                 )
                 val column = if (database.size <= 1) 1 else 2
-                val rv = findViewById<RecyclerView>(R.id.rv)
+                val rv = binding.rv
                 delay(500 - System.currentTimeMillis() + launchTime)
                 withContext(Dispatchers.Main) {
                     (rv.layoutManager as StaggeredGridLayoutManager).spanCount = column

@@ -19,7 +19,7 @@ class AttachAdapter(
 ) : RecyclerView.Adapter<AttachViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            AttachViewHolder(LayoutInflater.from(context).inflate(R.layout.attach_layout, parent, false))
+            AttachViewHolder(LayoutInflater.from(context).inflate(R.layout.view_card_attach, parent, false))
 
     override fun onBindViewHolder(holder: AttachViewHolder, position: Int) {
         holder.attachName.text = titles[position].getFileName()

@@ -26,7 +26,7 @@ class EpisodeAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         EpisodeViewHolder(
-            LayoutInflater.from(context).inflate(R.layout.episode_layout, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.view_card_episode, parent, false)
         )
 
     override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {

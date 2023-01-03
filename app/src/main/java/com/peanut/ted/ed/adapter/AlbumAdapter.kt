@@ -25,7 +25,7 @@ class AlbumAdapter(
 ) : RecyclerView.Adapter<AlbumViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        AlbumViewHolder(LayoutInflater.from(context).inflate(R.layout.album_layout, parent, false))
+        AlbumViewHolder(LayoutInflater.from(context).inflate(R.layout.view_card_album, parent, false))
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
         holder.albumName.text = albums[position].albumDisplayName

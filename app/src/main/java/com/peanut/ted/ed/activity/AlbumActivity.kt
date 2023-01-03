@@ -25,7 +25,7 @@ import com.peanut.ted.ed.R
 import com.peanut.ted.ed.adapter.AlbumAdapter
 import com.peanut.ted.ed.data.Album
 import com.peanut.ted.ed.data.PlayHistory
-import com.peanut.ted.ed.databinding.ActivityMainBinding
+import com.peanut.ted.ed.databinding.ActivityAlbumBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.utils.Unities.play
@@ -37,7 +37,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 
 class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener {
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityAlbumBinding
     private var adapter: AlbumAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,7 @@ class AlbumActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Swip
         Picasso.get().setIndicatorsEnabled(BuildConfig.DEBUG)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
-        setContentView(ActivityMainBinding.inflate(layoutInflater).also { binding = it }.root)
+        setContentView(ActivityAlbumBinding.inflate(layoutInflater).also { binding = it }.root)
         binding.root.setOnApplyWindowInsetsListener { _, insets ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val statusBar = insets.getInsets(WindowInsets.Type.statusBars())
