@@ -153,7 +153,6 @@ class EpisodeActivity : AppCompatActivity() {
                     binding.textView.text = title
                     binding.textView2.text = certification
                     binding.textView3.text = tagline
-                    binding.textView9.text = "用户评分"
                     binding.include2.root.visibility = View.VISIBLE
                     binding.include2.textView6.text = "0"
                     binding.include2.circularProgressView.progress = 0
@@ -167,8 +166,7 @@ class EpisodeActivity : AppCompatActivity() {
                 val palette = withContext(Dispatchers.IO) {
                     val postRequestCreator = Picasso.get().load(
                         "$server/getFile/get_post_img?" +
-                                "path=${Uri.encode("/$album/.post")}&" +
-                                "token=${ViewModel.token}"
+                                "path=${Uri.encode("/$album/.post")}"
                     ).error(R.mipmap.post)
                     withContext(Dispatchers.Main) {
                         postRequestCreator.into(binding.post)
@@ -184,9 +182,11 @@ class EpisodeActivity : AppCompatActivity() {
                 binding.textView.setTextColor(color)
                 binding.textView2.setTextColor(color)
                 binding.textView3.setTextColor(color)
-                binding.textView9.setTextColor(color)
                 WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars =
                     color == Color.BLACK
+                Picasso.get().load("$server/getFile/get_network_img?" +
+                        "path=${Uri.encode("/$album/.network")}")
+                    .into(binding.networks)
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 val database = ArrayList<Episode>(fileList.length())

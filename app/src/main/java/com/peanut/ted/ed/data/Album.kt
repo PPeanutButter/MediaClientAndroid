@@ -8,8 +8,7 @@ import java.util.regex.Pattern
 data class Album(val albumTitle: String, val albumPath: String){
     var albumDisplayName: String
     val albumCoverUrl: String get() = "${SettingManager.getIp()}/getCover?" +
-            "cover=${Uri.encode(this.albumPath)}&" +
-            "token=${ViewModel.token}"
+            "cover=${Uri.encode(this.albumPath)}"
 
     init {
         Pattern.compile("(.*)\\(\\d{4}\\)", Pattern.MULTILINE).matcher(this.albumTitle).apply { this.find() }.also {

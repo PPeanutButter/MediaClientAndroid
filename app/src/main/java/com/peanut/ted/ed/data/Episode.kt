@@ -21,8 +21,7 @@ class Episode(episodePath: String,
 
     init {
         episodeName = episodePath.getFileName()
-        previewUrl = "${SettingManager.getIp()}/getVideoPreview?path=${Uri.encode(episodePath)}" +
-                "&token=${ViewModel.token}"
+        previewUrl = "${SettingManager.getIp()}/getVideoPreview?path=${Uri.encode(episodePath)}"
         timeLasts = timeSeconds.toInt().describeAsTimeLasts(hour = ":", minute = ":", seconds = "")
     }
 

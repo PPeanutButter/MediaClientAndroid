@@ -32,13 +32,7 @@ class ConvertAssActivity : AppCompatActivity() {
                 Log.d("ConvertAssActivity", "onCreate: receive $name with $size")
                 val dest = this.cacheDir.path + "/" + name
                 FileCompat.copyFile(it, dest, this)
-                val client = OkHttpClient.Builder()
-                    .cookieJar(CacheStoreCookieJar(this))
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .writeTimeout(60, TimeUnit.SECONDS)
-                    .connectTimeout(60, TimeUnit.SECONDS)
-                    .callTimeout(60, TimeUnit.SECONDS)
-                    .build()
+                val client = Unities.getHttpClient(this)
                 val requestBody = MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("title", "Square Logo")
@@ -56,7 +50,6 @@ class ConvertAssActivity : AppCompatActivity() {
                     override fun onResponse(call: Call, response: Response) {
                         try {
                             response.body?.string()?.let { r ->
-                                println(r)
                                 r.toast(this@ConvertAssActivity)
                                 JSONObject(r).let { res ->
                                     val file = res.getString("file")

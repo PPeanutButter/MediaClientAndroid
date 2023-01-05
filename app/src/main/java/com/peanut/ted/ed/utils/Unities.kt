@@ -10,6 +10,7 @@ import com.peanut.ted.ed.viewmodel.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 object Unities {
@@ -92,6 +93,9 @@ object Unities {
                                 }
                             }
                         }))
+                        .connectTimeout(5, TimeUnit.MINUTES)
+                        .readTimeout(5, TimeUnit.MINUTES)
+                        .writeTimeout(5, TimeUnit.MINUTES)
                         .build()
                 }
             }

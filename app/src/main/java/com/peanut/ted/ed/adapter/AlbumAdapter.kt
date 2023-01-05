@@ -14,6 +14,7 @@ import com.peanut.ted.ed.data.Album
 import com.peanut.ted.ed.viewholder.AlbumViewHolder
 import com.peanut.ted.ed.viewmodel.ViewModel
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.PicassoProvider
 
 /**
  * 显示海报墙
