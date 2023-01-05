@@ -29,4 +29,20 @@
         app:useSimpleSummaryProvider="true"
         app:iconSpaceReserved="false"/>
     </PreferenceCategory>
+    <PreferenceCategory
+        app:title="本机配置"
+        app:iconSpaceReserved="false">
+        <com.peanut.ted.ed.view.HDRPreference
+            app:title="HDR 性能"
+            app:useSimpleSummaryProvider="true"
+            app:iconSpaceReserved="false"/>
+        <com.peanut.ted.ed.view.LuminancePreference
+            app:title="亮度数据"
+            app:useSimpleSummaryProvider="true"
+            app:iconSpaceReserved="false"/>
+        <com.peanut.ted.ed.view.CodecPreference
+            app:title="受支持的视频硬件解码器"
+            app:useSimpleSummaryProvider="true"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -9,8 +9,8 @@ android {
         applicationId "com.peanut.ted.ed"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 93
-        versionName "9.0.3"
+        versionCode 94
+        versionName "9.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
