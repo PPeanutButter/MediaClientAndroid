@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 
@@ -18,17 +19,22 @@ public class FabScrollBehavior extends FloatingActionButton.Behavior {
     }
 
     @Override
-    public boolean onStartNestedScroll(final CoordinatorLayout coordinatorLayout, final FloatingActionButton child,
-                                       final View directTargetChild, final View target, final int nestedScrollAxes) {
+    public boolean onStartNestedScroll(@NonNull final CoordinatorLayout coordinatorLayout,
+                                       @NonNull final FloatingActionButton child,
+                                       @NonNull final View directTargetChild,
+                                       @NonNull final View target,
+                                       final int axes,
+                                       final int type) {
         // 确保滚动方向为垂直方向
-        return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL;
+        return axes == ViewCompat.SCROLL_AXIS_VERTICAL;
     }
 
     @Override
-    public void onNestedScroll(final CoordinatorLayout coordinatorLayout, final FloatingActionButton child,
-                               final View target, final int dxConsumed, final int dyConsumed,
-                               final int dxUnconsumed, final int dyUnconsumed) {
-        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+    public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull FloatingActionButton child,
+                               @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                               int dyUnconsumed, @ViewCompat.NestedScrollType int type, @NonNull int[] consumed) {
+        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed,
+                dxUnconsumed, dyUnconsumed, type, consumed);
         if (dyConsumed > 0) { // 向下滑动
             animateOut(child);
         } else if (dyConsumed < 0) { // 向上滑动
