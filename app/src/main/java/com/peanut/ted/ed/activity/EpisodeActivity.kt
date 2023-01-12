@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
@@ -37,7 +38,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import java.lang.Exception
 
 class EpisodeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEpisodeBinding
@@ -189,11 +189,12 @@ class EpisodeActivity : AppCompatActivity() {
                 Picasso.get().load("$server/getFile/get_network_img?" +
                         "path=${Uri.encode("/$album/.network")}")
                     .into(binding.networks, object : Callback{
-                        override fun onSuccess() {}
-
-                        override fun onError(e: Exception?) {
-                            binding.ratingLayout.background = null
+                        override fun onSuccess() {
+                            binding.ratingLayout.background = ResourcesCompat.getDrawable(resources,
+                                R.drawable.round_background, null)
                         }
+
+                        override fun onError(e: Exception?) {}
 
                     })
             }
