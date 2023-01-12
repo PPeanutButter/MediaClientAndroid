@@ -29,6 +29,7 @@ import com.peanut.ted.ed.databinding.ActivityEpisodeBinding
 import com.peanut.ted.ed.utils.SettingManager
 import com.peanut.ted.ed.utils.Unities.http
 import com.peanut.ted.ed.viewmodel.ViewModel
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.Exception
 
 class EpisodeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEpisodeBinding
@@ -186,7 +188,14 @@ class EpisodeActivity : AppCompatActivity() {
                     color == Color.BLACK
                 Picasso.get().load("$server/getFile/get_network_img?" +
                         "path=${Uri.encode("/$album/.network")}")
-                    .into(binding.networks)
+                    .into(binding.networks, object : Callback{
+                        override fun onSuccess() {}
+
+                        override fun onError(e: Exception?) {
+                            binding.ratingLayout.background = null
+                        }
+
+                    })
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 val database = ArrayList<Episode>(fileList.length())
